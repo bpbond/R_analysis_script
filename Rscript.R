@@ -35,8 +35,8 @@ object_sizes <- function() {
 
 # -----------------------------------------------------------------------------
 # Return output directory (perhaps inside a script-specific folder)
-# If caller species `scriptfolder=FALSE`, return OUTPUT_DIR
-# If caller species `scriptfolder=TRUE` (default), return OUTPUT_DIR/SCRIPTNAME
+# If caller specifies `scriptfolder=FALSE`, return OUTPUT_DIR
+# If caller specifies `scriptfolder=TRUE` (default), return OUTPUT_DIR/SCRIPTNAME
 outputdir <- function(scriptfolder=TRUE) {
     output_dir <- OUTPUT_DIR
     if(scriptfolder) output_dir <- file.path(output_dir, sub(".R$", "", SCRIPTNAME))
@@ -95,6 +95,10 @@ is_outlier <- function(x, devs=3.2) {
     x < lims[ 1 ] | x > lims[2]
 } # is_outlier
 
+
+# ==============================================================================
+
+
 if(!file.exists(OUTPUT_DIR)) {
 	printlog("Creating", OUTPUT_DIR)
 	dir.create(OUTPUT_DIR)
@@ -102,9 +106,9 @@ if(!file.exists(OUTPUT_DIR)) {
 
 
 # ==============================================================================
-# Main (or in a separate script that sources this one)
+# Main (or more commonly, put in a separate script that sources this one)
 
-sink(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")), split=T)
+sink(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")), split=T) # open log
 
 printlog("Welcome to", SCRIPTNAME)
 
@@ -128,4 +132,4 @@ library(ncdf4)
 
 printlog("All done with", SCRIPTNAME)
 print(sessionInfo())
-sink()
+sink() # close log
