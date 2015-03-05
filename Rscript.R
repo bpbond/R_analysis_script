@@ -70,11 +70,16 @@ open_ncdf <- function(fn, datadir=".") {
 } # open_ncdf
 
 # -----------------------------------------------------------------------------
-# Open a csv file and return data
+# Open a (possibly compressed) csv file and return data
 read_csv <- function(fn, datadir=".", ...) {
 	fqfn <- file.path(datadir, fn)
 	printlog("Opening", fqfn)
 	stopifnot(file.exists(fqfn))
+	if(grepl(".gz$", fqfn)) 
+		fqfn <- gzfile(fqfn)
+	else 
+		if(grepl(".zip$", fqfn)) 
+			fqfn <- unz(fqfn)
 	read.csv(fqfn, stringsAsFactors=F, ...)
 } # read_csv
 
