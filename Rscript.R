@@ -1,14 +1,15 @@
 # Template for R analysis script
-# Ben Bond-Lamberty February 2015
+# Ben Bond-Lamberty March 2015
 
 # This is my starting point for most analysis or data processing scripts
-# Most critically, it provides logging, with sessionInfo()  written at the 
-# bottom of every log; easy ggplot saving; logged csv read/write; and a
-# few other handy things.
+# Most critically, it provides logging, with sessionInfo() written at the 
+# bottom of every log; easy ggplot saving; logged csv[.gz|zip] read/write;
+# and a few other handy things.
 
 SCRIPTNAME		<- "Rscript.R"
 OUTPUT_DIR		<- "outputs/"
 RANDOM_SEED		<- 12345		# comment out to not set seed
+CHECKPOINTDATE	<- "2015-03-05" # comment out to not use checkpoint
 SEPARATOR		<- "-------------------"
 
 # -----------------------------------------------------------------------------
@@ -65,7 +66,6 @@ save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptf
 open_ncdf <- function(fn, datadir=".") {
 	fqfn <- file.path(datadir, fn)
 	printlog("Opening", fqfn)
-	stopifnot(file.exists(fqfn))
 	nc_open(fqfn)
 } # open_ncdf
 
@@ -74,13 +74,12 @@ open_ncdf <- function(fn, datadir=".") {
 read_csv <- function(fn, datadir=".", ...) {
 	fqfn <- file.path(datadir, fn)
 	printlog("Opening", fqfn)
-	stopifnot(file.exists(fqfn))
 	if(grepl(".gz$", fqfn)) 
 		fqfn <- gzfile(fqfn)
 	else 
 		if(grepl(".zip$", fqfn)) 
 			fqfn <- unz(fqfn)
-	read.csv(fqfn, stringsAsFactors=F, ...)
+	invisible(read.csv(fqfn, stringsAsFactors=F, ...))
 } # read_csv
 
 # -----------------------------------------------------------------------------
@@ -122,6 +121,11 @@ if(exists("RANDOM_SEED")) {
 	set.seed(RANDOM_SEED)
 }
 
+# -----------------------------------------------------------------------------
+# Packages and reproducibility
+
+if(require(checkpoint) & exists("CHECKPOINTDATE"))
+	try(checkpoint(CHECKPOINTDATE))
 library(ggplot2)
 theme_set(theme_bw())
 library(reshape2)
