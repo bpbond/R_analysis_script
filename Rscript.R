@@ -55,10 +55,15 @@ save_plot <- function(pname, p=last_plot(), ptype=".pdf", scriptfolder=TRUE, ...
 
 # -----------------------------------------------------------------------------
 # Save a data frame
-save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptfolder=TRUE, ...) {
-    fn <- file.path(outputdir(scriptfolder), fname)
-    printlog("Saving", fn)
-    write.csv(df, fn, row.names=F, ...)
+save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptfolder=TRUE, gzip=FALSE, ...) {
+  fn <- file.path(outputdir(scriptfolder), fname)
+  if(gzip) {
+    printlog("Saving", fn, "[gzip]")    
+    fn <- gzfile(paste0(fn, ".gz"))
+  } else {
+    printlog("Saving", fn)    
+  }
+  write.csv(df, fn, row.names=FALSE, ...)
 } # save_data
 
 # -----------------------------------------------------------------------------
