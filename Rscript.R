@@ -64,16 +64,24 @@ save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptf
 # -----------------------------------------------------------------------------
 # Open a netCDF file and return handle (using ncdf4 package)
 open_ncdf <- function(fn, datadir=".") {
-    fqfn <- file.path(datadir, fn)
-    printlog("Opening", fqfn)
+	if(is.null(datadir)) {  # NULL signifies absolute path
+		fqfn <- fn 
+  	} else {
+    	fqfn <- file.path(datadir, fn)      
+  	}
+  	printlog("Opening", fqfn)
     nc_open(fqfn)
 } # open_ncdf
 
 # -----------------------------------------------------------------------------
 # Open a (possibly compressed) csv file and return data
 read_csv <- function(fn, datadir=".", ...) {
-    fqfn <- file.path(datadir, fn)
-    printlog("Opening", fqfn)
+	if(is.null(datadir)) {  # NULL signifies absolute path
+		fqfn <- fn 
+  	} else {
+    	fqfn <- file.path(datadir, fn)      
+  	}
+  	printlog("Opening", fqfn)
     if(grepl(".gz$", fqfn)) {
         fqfn <- gzfile(fqfn)
     } else if(grepl(".zip$", fqfn)) {
