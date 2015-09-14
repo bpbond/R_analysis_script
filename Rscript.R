@@ -1,5 +1,5 @@
 # Template for R analysis script
-# Ben Bond-Lamberty March 2015
+# Ben Bond-Lamberty September 2015
 
 # This is my starting point for most analysis or data processing scripts
 # Most critically, it provides lightweight logging, with sessionInfo() 
@@ -7,6 +7,7 @@
 # logged csv[.gz|zip] read/write; and a few other handy things.
 
 SCRIPTNAME		<- "Rscript.R"
+PROBLEM			<- FALSE
 OUTPUT_DIR		<- "outputs/"
 RANDOM_SEED		<- 12345		# comment out to not set seed
 CHECKPOINTDATE	<- "2015-03-05" # comment out to not use checkpoint
@@ -14,7 +15,7 @@ SEPARATOR		<- "-------------------"
 
 # -----------------------------------------------------------------------------
 # Time-stamped output function
-printlog <- function(msg="", ..., ts=TRUE, cr=TRUE) {
+printlog <- function(msg = "", ..., ts = TRUE, cr = TRUE) {
     if(ts) cat(date(), " ")
     cat(msg, ...)
     if(cr) cat("\n")
@@ -22,7 +23,7 @@ printlog <- function(msg="", ..., ts=TRUE, cr=TRUE) {
 
 # -----------------------------------------------------------------------------
 # Print dimensions of data frame
-print_dims <- function(d, dname=deparse(substitute(d))) {
+print_dims <- function(d, dname = deparse(substitute(d))) {
     stopifnot(is.data.frame(d))
     printlog(dname, "rows =", nrow(d), "cols =", ncol(d))
 } # print_dims
@@ -30,7 +31,7 @@ print_dims <- function(d, dname=deparse(substitute(d))) {
 # -----------------------------------------------------------------------------
 # Return matrix of memory consumption
 object_sizes <- function() {
-    rev(sort(sapply(ls(envir=.GlobalEnv), function(object.name) 
+    rev(sort(sapply(ls(envir = .GlobalEnv), function(object.name) 
         object.size(get(object.name)))))
 } # object_sizes
 
@@ -38,7 +39,7 @@ object_sizes <- function() {
 # Return output directory (perhaps inside a script-specific folder)
 # If caller specifies `scriptfolder=FALSE`, return OUTPUT_DIR
 # If caller specifies `scriptfolder=TRUE` (default), return OUTPUT_DIR/SCRIPTNAME
-outputdir <- function(scriptfolder=TRUE) {
+outputdir <- function(scriptfolder = TRUE) {
     output_dir <- OUTPUT_DIR
     if(scriptfolder) output_dir <- file.path(output_dir, sub(".R$", "", SCRIPTNAME))
     if(!file.exists(output_dir)) dir.create(output_dir)
@@ -47,7 +48,7 @@ outputdir <- function(scriptfolder=TRUE) {
 
 # -----------------------------------------------------------------------------
 # Save a ggplot figure
-save_plot <- function(pname, p=last_plot(), ptype=".pdf", scriptfolder=TRUE, ...) {
+save_plot <- function(pname, p = last_plot(), ptype = ".pdf", scriptfolder = TRUE, ...) {
     fn <- file.path(outputdir(scriptfolder), paste0(pname, ptype))
     printlog("Saving", fn)
     ggsave(fn, p, ...)
@@ -55,7 +56,7 @@ save_plot <- function(pname, p=last_plot(), ptype=".pdf", scriptfolder=TRUE, ...
 
 # -----------------------------------------------------------------------------
 # Save a data frame
-save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptfolder=TRUE, gzip=FALSE, ...) {
+save_data <- function(df, fname = paste0(deparse(substitute(df)), ".csv"), scriptfolder = TRUE, gzip = FALSE, ...) {
   fn <- file.path(outputdir(scriptfolder), fname)
   if(gzip) {
     printlog("Saving", fn, "[gzip]")    
@@ -63,12 +64,12 @@ save_data <- function(df, fname=paste0(deparse(substitute(df)), ".csv"), scriptf
   } else {
     printlog("Saving", fn)    
   }
-  write.csv(df, fn, row.names=FALSE, ...)
+  write.csv(df, fn, row.names = FALSE, ...)
 } # save_data
 
 # -----------------------------------------------------------------------------
 # Open a netCDF file and return handle (using ncdf4 package)
-open_ncdf <- function(fn, datadir=".") {
+open_ncdf <- function(fn, datadir = ".") {
 	if(is.null(datadir)) {  # NULL signifies absolute path
 		fqfn <- fn 
   	} else {
@@ -80,7 +81,7 @@ open_ncdf <- function(fn, datadir=".") {
 
 # -----------------------------------------------------------------------------
 # Open a (possibly compressed) csv file and return data
-read_csv <- function(fn, datadir=".", ...) {
+read_csv <- function(fn, datadir = ".", ...) {
 	if(is.null(datadir)) {  # NULL signifies absolute path
 		fqfn <- fn 
   	} else {
@@ -92,17 +93,17 @@ read_csv <- function(fn, datadir=".", ...) {
     } else if(grepl(".zip$", fqfn)) {
         fqfn <- unz(fqfn)
     }
-    invisible(read.csv(fqfn, stringsAsFactors=F, ...))
+    invisible(read.csv(fqfn, stringsAsFactors = FALSE, ...))
 } # read_csv
 
 # -----------------------------------------------------------------------------
 # Read data from the clipboard
 paste_data <- function(header=TRUE) {
-    read.table(pipe("pbpaste"), header=header)
+    read.table(pipe("pbpaste"), header = header)
 } # paste_data
 
 # -----------------------------------------------------------------------------
-is_outlier <- function(x, devs=3.2) {
+is_outlier <- function(x, devs = 3.2) {
     # See: Davies, P.L. and Gather, U. (1993).
     # "The identification of multiple outliers" (with discussion)
     # J. Amer. Statist. Assoc., 88, 782-801.
@@ -122,7 +123,7 @@ if(!file.exists(OUTPUT_DIR)) {
 # Main (or more commonly, put in a separate script that sources this one)
 
 # Setup, packages, reproducibility
-sink(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")), split=T) # open log
+sink(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")), split = TRUE) # open log
 
 printlog("Welcome to", SCRIPTNAME)
 
@@ -150,3 +151,5 @@ library(dplyr)
 printlog("All done with", SCRIPTNAME)
 print(sessionInfo())
 sink() # close log
+
+if(PROBLEM) warning("There was a problem - see log")
