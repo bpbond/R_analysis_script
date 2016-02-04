@@ -13,18 +13,11 @@ RANDOM_SEED		<- 12345		# comment out to not set seed
 CHECKPOINTDATE	<- "2015-03-05" # comment out to not use checkpoint
 SEPARATOR		<- "-------------------"
 
-# -----------------------------------------------------------------------------
-# Time-stamped output function
-printlog <- function(msg = "", ..., ts = TRUE, cr = TRUE) {
-    if(ts) cat(date(), " ")
-    cat(msg, ...)
-    if(cr) cat("\n")
-} # printlog
 
 # -----------------------------------------------------------------------------
 # Print dimensions of data frame
 print_dims <- function(d, dname = deparse(substitute(d))) {
-    stopifnot(is.data.frame(d))
+    stopifnot(is.data.frame(d) | is.matrix(d))
     printlog(dname, "rows =", nrow(d), "cols =", ncol(d))
 } # print_dims
 
@@ -60,11 +53,13 @@ save_data <- function(df, fname = paste0(deparse(substitute(df)), ".csv"), scrip
   fn <- file.path(outputdir(scriptfolder), fname)
   if(gzip) {
     printlog("Saving", fn, "[gzip]")    
-    fn <- gzfile(paste0(fn, ".gz"))
   } else {
     printlog("Saving", fn)    
   }
-  write.csv(df, fn, row.names = FALSE, ...)
+  write_csv(df, fn, row.names = FALSE, ...)
+  if(gzip & require(R.utils)) {
+    R.utils::gzip(fn, overwrite = TRUE)
+  }
 } # save_data
 
 # -----------------------------------------------------------------------------
@@ -123,7 +118,7 @@ if(!file.exists(OUTPUT_DIR)) {
 # Main (or more commonly, put in a separate script that sources this one)
 
 # Setup, packages, reproducibility
-sink(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")), split = TRUE) # open log
+openlog(file.path(outputdir(), paste0(SCRIPTNAME, ".log.txt")))
 
 printlog("Welcome to", SCRIPTNAME)
 
@@ -139,6 +134,9 @@ theme_set(theme_bw())
 library(reshape2)
 library(dplyr)
 #library(ncdf4)
+#library(lubridate)
+library(luzlogr)
+library(readr)
 
 # ----- Main script goes here...
 
