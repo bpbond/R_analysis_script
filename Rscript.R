@@ -135,7 +135,7 @@ library(reshape2)
 library(dplyr)
 #library(ncdf4)
 #library(lubridate)
-library(luzlogr)
+library(luzlogr)  # 0.2.0
 library(readr)
 
 # ----- Main script goes here...
