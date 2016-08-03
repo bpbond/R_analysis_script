@@ -52,7 +52,8 @@ save_plot <- function(pname, p = last_plot(), ptype = ".pdf", scriptfolder = TRU
 save_data <- function(df, fname = paste0(deparse(substitute(df)), ".csv"), scriptfolder = TRUE, gzip = FALSE, ...) {
   fn <- file.path(outputdir(scriptfolder), fname)
   if(gzip) {
-    printlog("Saving", fn, "[gzip]")    
+    printlog("Saving", fn, "[gzip]")
+	fn <- gzfile(paste0(gsub(".gz$", "", fn), ".gz"))
   } else {
     printlog("Saving", fn)    
   }
@@ -83,12 +84,7 @@ read_csv <- function(fn, datadir = ".", ...) {
     	fqfn <- file.path(datadir, fn)      
   	}
   	printlog("Opening", fqfn)
-    if(grepl(".gz$", fqfn)) {
-        fqfn <- gzfile(fqfn)
-    } else if(grepl(".zip$", fqfn)) {
-        fqfn <- unz(fqfn)
-    }
-    invisible(read.csv(fqfn, stringsAsFactors = FALSE, ...))
+    invisible(readr::read_csv(fqfn, ...))
 } # read_csv
 
 # -----------------------------------------------------------------------------
@@ -137,6 +133,7 @@ library(dplyr)
 #library(lubridate)
 library(luzlogr)  # 0.2.0
 library(readr)
+library(R.utils)
 
 # ----- Main script goes here...
 
