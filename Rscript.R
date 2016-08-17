@@ -13,6 +13,19 @@ RANDOM_SEED		<- 12345		# comment out to not set seed
 CHECKPOINTDATE	<- "2015-03-05" # comment out to not use checkpoint
 SEPARATOR		<- "-------------------"
 
+if(require(checkpoint) & exists("CHECKPOINTDATE"))
+    try(checkpoint(CHECKPOINTDATE)) # 'try' b/c errors w/o network (issue #171)
+library(ggplot2)  # 2.0.0
+theme_set(theme_bw())
+#library(reshape2)
+library(dplyr)   # 0.5.0
+library(tidyr)   # 0.5.0
+#library(ncdf4)
+#library(lubridate)
+library(luzlogr)  # 0.2.0
+library(readr)    # 1.0
+library(R.utils)
+
 
 # -----------------------------------------------------------------------------
 # Print dimensions of data frame
@@ -123,17 +136,6 @@ if(exists("RANDOM_SEED")) {
     set.seed(RANDOM_SEED)
 }
 
-if(require(checkpoint) & exists("CHECKPOINTDATE"))
-    try(checkpoint(CHECKPOINTDATE)) # 'try' b/c errors w/o network (issue #171)
-library(ggplot2)
-theme_set(theme_bw())
-library(reshape2)
-library(dplyr)
-#library(ncdf4)
-#library(lubridate)
-library(luzlogr)  # 0.2.0
-library(readr)
-library(R.utils)
 
 # ----- Main script goes here...
 
